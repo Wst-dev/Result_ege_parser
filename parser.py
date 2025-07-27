@@ -63,24 +63,24 @@ def find_student_places(student_id):
     for filename in csv_files:
         try:
             with open(filename, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f, delimiter=';')
-                place = 1
+                reader = list(csv.DictReader(f, delimiter=';'))
                 faculty_name = os.path.splitext(os.path.basename(filename))[0].replace('_', ' ')
+                place = 1
+                student_place = None
+                consent_list = []
+                id_field = "ID участника"
+                consent_field = "Подано согласие" 
                 for row in reader:
-                    id_field = None
-                    for key in row.keys():
-                        if 'id' in key.lower():
-                            id_field = key
-                            break
-                    if not id_field:
-                        continue
-                    if row[id_field].strip() == student_id:
-                        print(f"На факультете {faculty_name} абитуриент находится на {place} месте")
-                        found = True
-                        break
+                    if id_field and row[id_field].strip() == student_id:
+                        student_place = place
+                        student_consent_place = len(consent_list) + 1
+                    if id_field and consent_field and row[consent_field].strip() != '—':
+                        consent_list.append(row[id_field].strip())
                     place += 1
-                else:
-                    print(f"В файле '{filename}' абитуриент с ID {student_id} не найден.")
+                print(f"{faculty_name}:")
+                print(f"- позиция относительно поданных заявлениях: {student_consent_place if student_consent_place is not None else 'нет в списке'}")
+                print(f"- общее количество заявлений о зачислении: {len(consent_list)}")
+                print(f"- позиция в списке: {student_place if student_place is not None else 'нет в списке'}\n")
         except Exception as e:
             print(f"Ошибка при обработке файла {filename}: {e}")
     if not csv_files:
@@ -90,7 +90,7 @@ def find_student_places(student_id):
 
 def main():
     """Главная функция программы"""
-    print("=== Программа управления ID абитуриента ===")
+    print("=== Программа поиска места абитуриента ===")
     
     student_id = get_student_id()
     
