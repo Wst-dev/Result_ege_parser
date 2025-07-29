@@ -2,6 +2,7 @@ import json
 import os
 import glob
 import csv
+import re
 
 def load_settings():
     """Загружает настройки из settings.json"""
@@ -82,6 +83,7 @@ def find_student_places(student_id):
             with open(filename, 'r', encoding='utf-8') as f:
                 reader = list(csv.DictReader(f, delimiter=';'))
                 faculty_name = os.path.splitext(os.path.basename(filename))[0].replace('_', ' ')
+                faculty_name = re.sub(r'\.\d{4}-\d{2}-\d{2}.*$', '', faculty_name)
                 place = 1
                 student_place = None
                 consent_list = []
@@ -145,8 +147,6 @@ def find_student_places(student_id):
     save_results_history(new_history)
     if not csv_files:
         print("CSV-файлы не найдены в папке.")
-    if not found and csv_files:
-        print(f"Абитуриент с ID {student_id} не найден ни в одном из файлов.")
 
 def main():
     """Главная функция программы"""
